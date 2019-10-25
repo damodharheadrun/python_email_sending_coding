@@ -2,6 +2,8 @@ import smtplib,ssl
 import sys
 import os
 import socket
+import ntpath
+import datetime
 from email.mime.base import MIMEBase 
 from email import Encoders
 from email.mime.text import MIMEText
@@ -53,9 +55,9 @@ class send_emails:
             # Add header as key/value pair to attachment part
             part.add_header(
                 "Content-Disposition",
-                "attachment", filename=attachment_) 
+                "attachment", filename=ntpath.basename(attachment_)) 
  
-        return part     
+            return part     
 
     def main(self):
         self.user_input()
@@ -71,7 +73,7 @@ class send_emails:
         part1=MIMEText(text,"plain")
 
         message.attach(part1)
-        filenames=['holiday_list_caavo.csv','amazon_netflix.xlsx','script.py']
+        filenames=['holiday_list_caavo.csv','amazon_netflix.xlsx']
         for file in filenames:
             attachment=os.getcwd()+'/attachments/'+file
             file_=self.read_attachment(attachment)
@@ -84,7 +86,7 @@ class send_emails:
             server.login(self.sender_email,self.password)
             server.sendmail(self.sender_email,self.receiver_email+self.cc,message.as_string())
             server.quit()
-            print("mail sent to %s"%",".join(self.receiver_email+self.cc))
+            print("mail sent to %s %s"%(",".join(self.receiver_email+self.cc),datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         except socket.error as e:
             print("retrying........",type(e))
             self.main()        
