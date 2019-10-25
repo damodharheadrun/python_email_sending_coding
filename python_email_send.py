@@ -3,7 +3,7 @@ import sys
 import os
 import socket
 from email.mime.base import MIMEBase 
-from email import encoders
+from email import Encoders
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -26,17 +26,36 @@ class send_emails:
     def user_message(self):
         text="""Hi,
         
-    How are you??
+    Please find the attachments below.
 
 
 
-    this is system generated mail, so don't reply
+
+    This is system generated mail, so don't reply.
 
 
     Thanks & regards,
     Saayan.       """
 
-        return text    
+        return text  
+
+
+    def read_attachment(self,attachment_):
+        #import pdb;pdb.set_trace()
+        with open(attachment_, "rb") as attachment:
+            # Add file as application/octet-stream
+            # Email client can usually download this automatically as attachment
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(attachment.read())
+            # Encode file in ASCII characters to send by email    
+            Encoders.encode_base64(part)
+
+            # Add header as key/value pair to attachment part
+            part.add_header(
+                "Content-Disposition",
+                "attachment", filename=attachment_) 
+ 
+        return part     
 
     def main(self):
         self.user_input()
@@ -52,7 +71,11 @@ class send_emails:
         part1=MIMEText(text,"plain")
 
         message.attach(part1)
-        #message.attach(part2)
+        filenames=['holiday_list_caavo.csv','amazon_netflix.xlsx','script.py']
+        for file in filenames:
+            attachment=os.getcwd()+'/attachments/'+file
+            file_=self.read_attachment(attachment)
+            message.attach(file_)
         try:
             #self.context_=ssl.create_default_context()
             server = smtplib.SMTP("smtp.gmail.com",25)
@@ -61,7 +84,7 @@ class send_emails:
             server.login(self.sender_email,self.password)
             server.sendmail(self.sender_email,self.receiver_email+self.cc,message.as_string())
             server.quit()
-            print("mail sent to %s"%self.receiver_email)
+            print("mail sent to %s"%",".join(self.receiver_email+self.cc))
         except socket.error as e:
             print("retrying........",type(e))
             self.main()        
