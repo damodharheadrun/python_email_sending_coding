@@ -23,7 +23,7 @@ class send_emails:
         self.receiver_email=["saayan8981@gmail.com"]
         self.cc=["saayan9045@yahoo.com"]
         #self.bcc=["saayan9045@yahoo.com"]
-        self.password="9891274567"
+        self.password=""
 
     def user_message(self):
         text="""Hi,
